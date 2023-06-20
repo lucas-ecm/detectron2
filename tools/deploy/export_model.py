@@ -216,6 +216,8 @@ if __name__ == "__main__":
         default=None,
         nargs=argparse.REMAINDER,
     )
+    parser.add_argument('--prune', action='store_true', help='prune PyTorch model')
+    parser.add_argument('--sparsity', type=float, default=0.5, help='Sparsity rate for pruning')
     args = parser.parse_args()
     logger = setup_logger()
     logger.info("Command line arguments: " + str(args))
@@ -235,7 +237,8 @@ if __name__ == "__main__":
     DetectionCheckpointer(torch_model).resume_or_load(cfg.MODEL.WEIGHTS)
     torch_model.eval()
 
-    torch_model = prune(torch_model, amount=0.3)
+    if args.prune:
+        torch_model = prune(torch_model, amount=args.sparsity)
 
     # convert and save model
     if args.export_method == "caffe2_tracing":
