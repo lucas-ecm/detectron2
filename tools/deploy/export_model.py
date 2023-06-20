@@ -227,7 +227,7 @@ if __name__ == "__main__":
     DetectionCheckpointer(torch_model).resume_or_load(cfg.MODEL.WEIGHTS)
     torch_model.eval()
 
-    torch_model = prune(torch_model, amount=0.3):
+    torch_model = prune(torch_model, amount=0.3)
 
     # convert and save model
     if args.export_method == "caffe2_tracing":
