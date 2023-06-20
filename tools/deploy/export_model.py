@@ -207,6 +207,11 @@ if __name__ == "__main__":
     # Disable re-specialization on new shapes. Otherwise --run-eval will be slow
     torch._C._jit_set_bailout_depth(1)
 
+    from detectron2.data.datasets import register_coco_instances
+    register_coco_instances("my_dataset_train", {}, "/content/train/_annotations.coco.json", "/content/train")
+    register_coco_instances("my_dataset_val", {}, "/content/valid/_annotations.coco.json", "/content/valid")
+    register_coco_instances("my_dataset_test", {}, "/content/test/_annotations.coco.json", "/content/test")
+
     cfg = setup_cfg(args)
 
     # create a torch model
