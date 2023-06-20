@@ -43,7 +43,7 @@ def prune(model, amount=0.3):
         if isinstance(m, nn.Conv2d):
             prune.l1_unstructured(m, name='weight', amount=amount)  # prune
             prune.remove(m, 'weight')  # make permanent
-    LOGGER.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
+    logger.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
 
 def export_caffe2_tracing(cfg, torch_model, inputs):
     from detectron2.export import Caffe2Tracer
