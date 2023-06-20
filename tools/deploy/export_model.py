@@ -35,7 +35,15 @@ def setup_cfg(args):
     cfg.merge_from_list(args.opts)
     cfg.freeze()
     return cfg
-    
+
+def sparsity(model):
+    # Return global model sparsity
+    a, b = 0, 0
+    for p in model.parameters():
+        a += p.numel()
+        b += (p == 0).sum()
+    return b / a
+
 def prune(model, amount=0.3):
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
