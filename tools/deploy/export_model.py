@@ -35,7 +35,15 @@ def setup_cfg(args):
     cfg.merge_from_list(args.opts)
     cfg.freeze()
     return cfg
-
+    
+def prune(model, amount=0.3):
+    # Prune model to requested global sparsity
+    import torch.nn.utils.prune as prune
+    for name, m in model.named_modules():
+        if isinstance(m, nn.Conv2d):
+            prune.l1_unstructured(m, name='weight', amount=amount)  # prune
+            prune.remove(m, 'weight')  # make permanent
+    LOGGER.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
 
 def export_caffe2_tracing(cfg, torch_model, inputs):
     from detectron2.export import Caffe2Tracer
@@ -218,6 +226,8 @@ if __name__ == "__main__":
     torch_model = build_model(cfg)
     DetectionCheckpointer(torch_model).resume_or_load(cfg.MODEL.WEIGHTS)
     torch_model.eval()
+
+    torch_model = prune(torch_model, amount=0.3):
 
     # convert and save model
     if args.export_method == "caffe2_tracing":
