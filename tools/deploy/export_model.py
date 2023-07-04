@@ -44,7 +44,7 @@ def sparsity(model):
         b += (p == 0).sum()
     return b / a
 
-def prune(model, amount=0.3):
+def prune(model, amount):
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
     for name, m in model.named_modules():
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     torch_model.eval()
 
     if args.prune:
-        torch_model = prune(torch_model, amount=args.sparsity)
+       prune(torch_model, amount=args.sparsity)
 
     # convert and save model
     if args.export_method == "caffe2_tracing":
