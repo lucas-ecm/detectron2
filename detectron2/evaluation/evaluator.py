@@ -98,10 +98,26 @@ class DatasetEvaluators(DatasetEvaluator):
                     ), "Different evaluators produce results with the same key {}".format(k)
                     results[k] = v
         return results
+        
+def sparsity(model):
+    # Return global model sparsity
+    a, b = 0, 0
+    for p in model.parameters():
+        a += p.numel()
+        b += (p == 0).sum()
+    return b / a
 
+def prune_fcn(model, amount):
+    # Prune model to requested global sparsity
+    import torch.nn.utils.prune as prune
+    for name, m in model.named_modules():
+        if isinstance(m, nn.Conv2d):
+            prune.l1_unstructured(m, name='weight', amount=amount)  # prune
+            prune.remove(m, 'weight')  # make permanent
+    logger.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
 
 def inference_on_dataset(
-    model, data_loader, evaluator: Union[DatasetEvaluator, List[DatasetEvaluator], None]
+    model, data_loader, evaluator: Union[DatasetEvaluator, List[DatasetEvaluator], None], prune = False, sparsity = 0
 ):
     """
     Run model on the data_loader and evaluate the metrics with evaluator.
@@ -134,6 +150,10 @@ def inference_on_dataset(
     if isinstance(evaluator, abc.MutableSequence):
         evaluator = DatasetEvaluators(evaluator)
     evaluator.reset()
+
+    if prune:
+        prune_fcn(model, amount = sparsity)
+        
 
     num_warmup = min(5, total - 1)
     start_time = time.perf_counter()
