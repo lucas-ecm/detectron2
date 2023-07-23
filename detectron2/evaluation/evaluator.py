@@ -107,7 +107,7 @@ def sparsity(model):
         b += (p == 0).sum()
     return b / a
 
-def prune_fcn(model, amount):
+def prune_fcn(model, amount, logger):
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
     for name, m in model.named_modules():
@@ -152,7 +152,7 @@ def inference_on_dataset(
     evaluator.reset()
 
     if prune:
-        prune_fcn(model, amount = sparsity)
+        prune_fcn(model, amount = sparsity, logger = logger)
         
 
     num_warmup = min(5, total - 1)
