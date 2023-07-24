@@ -45,13 +45,16 @@ def sparsity(model):
     return b / a
 
 def prune(model, amount):
+    print('Pruning')
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
     for name, m in model.named_modules():
+        print(name)
         if isinstance(m, nn.Conv2d):
             prune.l1_unstructured(m, name='weight', amount=amount)  # prune
             prune.remove(m, 'weight')  # make permanent
     logger.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
+    print(f'Model pruned to {sparsity(model):.3g} global sparsity')
 
 def export_caffe2_tracing(cfg, torch_model, inputs):
     from detectron2.export import Caffe2Tracer
