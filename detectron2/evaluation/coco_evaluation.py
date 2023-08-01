@@ -363,7 +363,7 @@ class COCOEvaluator(DatasetEvaluator):
         print('test:')
         print(coco_eval.eval)
         print('/n/n/n')
-        print(coco_eval.eval['Precision'])
+        print(coco_eval.eval['precision'])
         print('/n/n/n')
         # precision has dims (iou, recall, cls, area range, max dets)
         assert len(class_names) == precisions.shape[2]
