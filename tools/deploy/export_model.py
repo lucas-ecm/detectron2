@@ -44,14 +44,17 @@ def sparsity(model):
         b += (p == 0).sum()
     return b / a
 
-def prune(model, amount):
+def prune(model, amount, pruning_type = 'l1'):
     print('Pruning')
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
     for name, m in model.named_modules():
         print(name)
         if isinstance(m, nn.Conv2d):
-            prune.l1_unstructured(m, name='weight', amount=amount)  # prune
+            if pruning_type == 'l1':
+                prune.l1_unstructured(m, name='weight', amount=amount)  # prune
+            elif pruning_type == 'l2':
+                prune.ln_structured(m, name="weight", amount=amount, n=2, dim=0)
             prune.remove(m, 'weight')  # make permanent
     logger.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
     print(f'Model pruned to {sparsity(model):.3g} global sparsity')
@@ -221,6 +224,7 @@ if __name__ == "__main__":
     )
     parser.add_argument('--prune', action='store_true', help='prune PyTorch model')
     parser.add_argument('--sparsity', type=float, default=0.5, help='Sparsity rate for pruning')
+    parser.add_argument('--pruning_type', type=str, default='l1', help='Pruning type')
     args = parser.parse_args()
     logger = setup_logger()
     logger.info("Command line arguments: " + str(args))
@@ -241,7 +245,7 @@ if __name__ == "__main__":
     torch_model.eval()
 
     if args.prune:
-       prune(torch_model, amount=args.sparsity)
+       prune(torch_model, amount=args.sparsity, pruning_type=args.pruning_type )
 
     # convert and save model
     if args.export_method == "caffe2_tracing":
