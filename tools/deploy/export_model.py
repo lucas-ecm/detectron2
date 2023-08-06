@@ -54,7 +54,7 @@ def prune(model, amount, pruning_type = 'l1'):
             if pruning_type == 'l1':
                 prune.l1_unstructured(m, name='weight', amount=amount)  # prune
             elif pruning_type == 'l2':
-                prune.ln_unstructured(m, name="weight", amount=amount, n=2, dim=0)
+                prune.ln_structured(m, name="weight", amount=amount, n=2, dim=0)
             prune.remove(m, 'weight')  # make permanent
     logger.info(f'Model pruned to {sparsity(model):.3g} global sparsity')
     print(f'Model pruned to {sparsity(model):.3g} global sparsity')
